@@ -1,404 +1,741 @@
 import streamlit as st
 import random
 import time
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+import hashlib
+import json
+from datetime import datetime, timedelta
+import base64
 
-# Page configuration
+# Advanced page configuration
 st.set_page_config(
-    page_title="Kirti's School - Love Animations",
-    page_icon="💕",
+    page_title="Kirti's Advanced Love Analytics Platform",
+    page_icon="🚀",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
-# Custom CSS for animations and styling
+# Advanced CSS with professional animations
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
     
-    .stApp {
-        background: linear-gradient(-45deg, #ffeef0, #ffe4e6, #fce7f3, #f3e8ff);
-        background-size: 400% 400%;
-        animation: gradientShift 15s ease infinite;
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.2);
     }
     
-    @keyframes gradientShift {
+    .stApp {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+        background-size: 400% 400%;
+        animation: gradientFlow 20s ease infinite;
+        color: white;
+    }
+    
+    @keyframes gradientFlow {
         0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
+        25% { background-position: 100% 50%; }
+        50% { background-position: 50% 100%; }
+        75% { background-position: 0% 100%; }
         100% { background-position: 0% 50%; }
     }
     
     * {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Inter', sans-serif;
     }
     
     .main-header {
         text-align: center;
-        background: linear-gradient(45deg, #ff6b6b, #ff8e8e, #ffa8a8);
+        font-size: 4rem;
+        font-weight: 800;
+        background: linear-gradient(45deg, #ffffff, #f8f9fa, #e9ecef);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        font-size: 3.5em;
-        font-weight: 700;
-        margin-bottom: 30px;
-        animation: glow 2s ease-in-out infinite alternate;
+        margin: 2rem 0;
+        animation: textGlow 3s ease-in-out infinite alternate;
+        position: relative;
     }
     
-    @keyframes glow {
-        from { 
-            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    .main-header::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+        z-index: -1;
+        animation: borderScan 4s linear infinite;
+        border-radius: 20px;
+    }
+    
+    @keyframes textGlow {
+        0% { 
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
             transform: scale(1);
         }
-        to { 
-            text-shadow: 0 0 30px rgba(255, 107, 107, 0.8);
+        100% { 
+            text-shadow: 0 0 40px rgba(255,255,255,0.8), 0 0 60px rgba(255,255,255,0.4);
             transform: scale(1.02);
         }
     }
     
-    .love-container {
-        position: relative;
-        height: 300px;
-        overflow: hidden;
+    @keyframes borderScan {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .glass-container {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
         border-radius: 20px;
-        background: linear-gradient(135deg, 
-            rgba(255, 182, 193, 0.3) 0%, 
-            rgba(255, 192, 203, 0.3) 25%,
-            rgba(255, 160, 122, 0.3) 50%,
-            rgba(255, 182, 193, 0.3) 75%,
-            rgba(255, 192, 203, 0.3) 100%);
-        border: 2px solid rgba(255, 107, 107, 0.3);
-        margin: 20px 0;
+        padding: 2rem;
+        margin: 1rem 0;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+        animation: containerFloat 6s ease-in-out infinite;
+    }
+    
+    .glass-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        animation: shimmer 3s ease-in-out infinite;
+    }
+    
+    @keyframes containerFloat {
+        0%, 100% { transform: translateY(0px) rotateX(0deg); }
+        50% { transform: translateY(-10px) rotateX(2deg); }
+    }
+    
+    @keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+    
+    .terminal-container {
+        background: #1a1a1a;
+        border-radius: 15px;
+        padding: 1.5rem;
+        font-family: 'JetBrains Mono', monospace;
+        position: relative;
+        margin: 1rem 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border: 1px solid #333;
+    }
+    
+    .terminal-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        flex-direction: column;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #333;
     }
     
-    .floating-hearts {
-        font-size: 3em;
-        animation: float 3s ease-in-out infinite;
-        color: #ff6b6b;
-        text-shadow: 0 0 20px rgba(255, 107, 107, 0.7);
+    .terminal-dots {
+        display: flex;
+        gap: 8px;
+        margin-right: 1rem;
     }
     
-    @keyframes float {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        25% { transform: translateY(-30px) rotate(10deg); }
-        50% { transform: translateY(-50px) rotate(-10deg); }
-        75% { transform: translateY(-30px) rotate(5deg); }
+    .terminal-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        animation: terminalBlink 2s ease-in-out infinite;
     }
     
-    .pulse-heart {
-        font-size: 2em;
-        animation: pulse 1.5s ease-in-out infinite;
-        display: inline-block;
-        margin: 0 10px;
+    .terminal-dot:nth-child(1) { background: #ff5f56; animation-delay: 0s; }
+    .terminal-dot:nth-child(2) { background: #ffbd2e; animation-delay: 0.5s; }
+    .terminal-dot:nth-child(3) { background: #27ca3f; animation-delay: 1s; }
+    
+    @keyframes terminalBlink {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.8); }
     }
     
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.7; }
-        50% { transform: scale(1.3); opacity: 1; }
-        100% { transform: scale(1); opacity: 0.7; }
+    .terminal-text {
+        color: #00ff00;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        animation: typeWriter 4s steps(60) infinite;
     }
     
-    .romantic-quote {
-        text-align: center;
-        font-size: 1.4em;
-        font-style: italic;
-        color: #d63384;
-        margin: 20px 0;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.2);
+    @keyframes typeWriter {
+        0%, 50% { width: 0; }
+        100% { width: 100%; }
+    }
+    
+    .metric-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
         border-radius: 15px;
-        animation: fadeInOut 4s ease-in-out infinite;
-        border: 1px solid rgba(255, 107, 107, 0.2);
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        animation: metricPulse 4s ease-in-out infinite;
+        transition: all 0.3s ease;
     }
     
-    @keyframes fadeInOut {
-        0%, 100% { opacity: 0.8; transform: scale(0.98); }
-        50% { opacity: 1; transform: scale(1); }
+    .metric-card:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
     
-    .school-badge {
-        background: linear-gradient(45deg, #667eea, #764ba2);
+    @keyframes metricPulse {
+        0%, 100% { 
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            transform: scale(1);
+        }
+        50% { 
+            box-shadow: 0 0 30px rgba(255,255,255,0.2);
+            transform: scale(1.02);
+        }
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: numberCount 3s ease-out;
+    }
+    
+    @keyframes numberCount {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .holographic-button {
+        background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2));
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 15px;
         color: white;
-        padding: 15px 30px;
-        border-radius: 25px;
-        display: inline-block;
-        margin: 20px;
+        padding: 12px 24px;
         font-weight: 600;
-        font-size: 1.2em;
-        animation: bounce 3s ease-in-out infinite;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
     }
     
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-        40% { transform: translateY(-15px); }
-        60% { transform: translateY(-8px); }
+    .holographic-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
     }
     
-    .love-stats {
-        background: rgba(255, 255, 255, 0.2);
+    .holographic-button:hover::before {
+        left: 100%;
+    }
+    
+    .holographic-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        border-color: rgba(255,255,255,0.5);
+    }
+    
+    .data-visualization {
+        background: rgba(0,0,0,0.2);
         border-radius: 20px;
-        padding: 30px;
-        margin: 30px 0;
-        border: 2px solid rgba(255, 107, 107, 0.2);
-        animation: statsGlow 3s ease-in-out infinite;
+        padding: 2rem;
+        margin: 1rem 0;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
     }
     
-    @keyframes statsGlow {
-        0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.2); }
-        50% { box-shadow: 0 0 30px rgba(255, 107, 107, 0.4); }
+    .neural-network {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
     }
     
-    .stat-item {
-        text-align: center;
-        margin: 20px;
-        animation: statFloat 4s ease-in-out infinite;
+    .neural-node {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: rgba(255,255,255,0.6);
+        border-radius: 50%;
+        animation: neuralPulse 3s ease-in-out infinite;
     }
     
-    .stat-item:nth-child(1) { animation-delay: 0s; }
-    .stat-item:nth-child(2) { animation-delay: 1s; }
-    .stat-item:nth-child(3) { animation-delay: 2s; }
-    .stat-item:nth-child(4) { animation-delay: 3s; }
-    
-    @keyframes statFloat {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
+    @keyframes neuralPulse {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.5); }
     }
     
-    .sparkle-text {
-        animation: sparkle 2s ease-in-out infinite;
-    }
-    
-    @keyframes sparkle {
-        0%, 100% { opacity: 0.7; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.1); }
-    }
-    
-    .footer-hearts {
-        text-align: center;
-        margin: 50px 0;
-        font-size: 2.5em;
-    }
-    
-    .footer-hearts span {
+    .status-indicator {
         display: inline-block;
-        animation: heartBeat 2s ease-in-out infinite;
-        margin: 0 5px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: statusBlink 2s ease-in-out infinite;
     }
     
-    .footer-hearts span:nth-child(1) { animation-delay: 0s; }
-    .footer-hearts span:nth-child(2) { animation-delay: 0.3s; }
-    .footer-hearts span:nth-child(3) { animation-delay: 0.6s; }
-    .footer-hearts span:nth-child(4) { animation-delay: 0.9s; }
-    .footer-hearts span:nth-child(5) { animation-delay: 1.2s; }
+    .status-online { background: #00ff00; }
+    .status-processing { background: #ffaa00; }
+    .status-error { background: #ff0000; }
     
-    @keyframes heartBeat {
-        0%, 100% { transform: scale(1); }
-        30% { transform: scale(1.2); }
-        60% { transform: scale(0.9); }
+    @keyframes statusBlink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+    
+    .matrix-rain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -2;
+        overflow: hidden;
+    }
+    
+    .matrix-column {
+        position: absolute;
+        top: -100%;
+        color: rgba(0,255,0,0.5);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        animation: matrixFall linear infinite;
+    }
+    
+    @keyframes matrixFall {
+        0% { top: -100%; opacity: 1; }
+        100% { top: 100%; opacity: 0; }
+    }
+    
+    .quantum-loader {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255,255,255,0.1);
+        border-top: 3px solid #ffffff;
+        border-radius: 50%;
+        animation: quantumSpin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    }
+    
+    @keyframes quantumSpin {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.2); }
+        100% { transform: rotate(360deg) scale(1); }
+    }
+    
+    .sidebar .sidebar-content {
+        background: rgba(0,0,0,0.3) !important;
+        backdrop-filter: blur(20px) !important;
     }
     
     .stButton > button {
-        background: linear-gradient(45deg, #ff6b6b, #ff8e8e) !important;
+        background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2)) !important;
+        border: 2px solid rgba(255,255,255,0.3) !important;
+        border-radius: 15px !important;
         color: white !important;
-        border: none !important;
-        border-radius: 25px !important;
-        padding: 10px 20px !important;
+        padding: 12px 24px !important;
         font-weight: 600 !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3) !important;
+        backdrop-filter: blur(10px) !important;
     }
     
     .stButton > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4) !important;
+        transform: translateY(-5px) !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+        border-color: rgba(255,255,255,0.5) !important;
     }
     
-    .center-content {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
+    .cyber-grid {
+        background-image: 
+            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -3;
+        animation: gridMove 20s linear infinite;
     }
     
-    .rotating-text {
-        animation: rotate 10s linear infinite;
-    }
-    
-    @keyframes rotate {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+    @keyframes gridMove {
+        0% { transform: translate(0, 0); }
+        100% { transform: translate(50px, 50px); }
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state
-if 'love_count' not in st.session_state:
-    st.session_state.love_count = 0
-if 'magic_count' not in st.session_state:
-    st.session_state.magic_count = 0
+# Add cyber grid background
+st.markdown('<div class="cyber-grid"></div>', unsafe_allow_html=True)
+
+# Initialize advanced session state
+if 'system_status' not in st.session_state:
+    st.session_state.system_status = 'online'
+if 'love_analytics' not in st.session_state:
+    st.session_state.love_analytics = {
+        'total_connections': random.randint(10000, 99999),
+        'active_sessions': random.randint(500, 2000),
+        'happiness_index': random.randint(85, 99),
+        'neural_accuracy': random.randint(94, 99),
+        'quantum_entanglements': random.randint(1000, 5000)
+    }
+if 'user_data' not in st.session_state:
+    st.session_state.user_data = []
+
+# Sidebar with advanced controls
+with st.sidebar:
+    st.markdown("### 🚀 System Control Panel")
+    
+    # System status
+    status_color = "status-online" if st.session_state.system_status == 'online' else "status-error"
+    st.markdown(f'<div><span class="{status_color} status-indicator"></span>System Status: {st.session_state.system_status.upper()}</div>', unsafe_allow_html=True)
+    
+    # Advanced settings
+    st.markdown("#### ⚙️ Analytics Settings")
+    neural_mode = st.selectbox("Neural Network Mode", ["Standard", "Advanced", "Quantum", "Experimental"])
+    real_time = st.checkbox("Real-time Processing", value=True)
+    advanced_viz = st.checkbox("Advanced Visualizations", value=True)
+    
+    st.markdown("#### 🎛️ System Parameters")
+    sensitivity = st.slider("Emotion Sensitivity", 1, 100, 85)
+    accuracy = st.slider("Prediction Accuracy", 50, 100, 94)
+    
+    if st.button("🔄 Recalibrate System"):
+        st.session_state.love_analytics = {
+            'total_connections': random.randint(10000, 99999),
+            'active_sessions': random.randint(500, 2000),
+            'happiness_index': random.randint(85, 99),
+            'neural_accuracy': accuracy,
+            'quantum_entanglements': random.randint(1000, 5000)
+        }
+        st.success("System recalibrated successfully!")
 
 # Main header
-st.markdown('<div class="center-content"><h1 class="main-header">💕 Kirti\'s School of Love 💕</h1></div>', unsafe_allow_html=True)
+st.markdown('''
+<div class="main-header">
+    🚀 KIRTI'S ADVANCED LOVE ANALYTICS PLATFORM 🚀
+</div>
+''', unsafe_allow_html=True)
 
-# School badge
-st.markdown('<div class="center-content"><div class="school-badge">🎓 Where Hearts Learn to Love 🎓</div></div>', unsafe_allow_html=True)
-
-# Animated love container
-st.markdown("""
-<div class="love-container">
-    <div class="floating-hearts">💖 💕 💝 💗 💓</div>
-    <div class="sparkle-text" style="font-size: 1.5em; color: #ff6b6b; margin-top: 20px;">
-        ✨ Love is in the Air ✨
+# Terminal simulation
+st.markdown('''
+<div class="terminal-container">
+    <div class="terminal-header">
+        <div class="terminal-dots">
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+            <div class="terminal-dot"></div>
+        </div>
+        <span style="color: #888; font-size: 0.9rem;">love_analytics_v2.1.0</span>
+    </div>
+    <div class="terminal-text">
+        > Initializing Love Analytics Engine...<br>
+        > Loading neural networks... ✓<br>
+        > Connecting to emotion database... ✓<br>
+        > Calibrating quantum sensors... ✓<br>
+        > System ready for advanced analysis... ✓<br>
+        > <span style="color: #00ff00;">█</span>
     </div>
 </div>
-""", unsafe_allow_html=True)
+''', unsafe_allow_html=True)
 
-# Romantic quotes
-quotes = [
-    "Love is not just looking at each other, it's looking in the same direction. 💕",
-    "In your arms, I found my home. 🏠💖",
-    "Every love story is beautiful, but ours is my favorite. 📖❤️",
-    "You are my today and all of my tomorrows. 🌅💝",
-    "Love is friendship set on fire. 🔥💕",
-    "In a sea of people, my eyes will always search for you. 👀💖",
-    "You are my sunshine on a cloudy day. ☀️💕",
-    "Together is my favorite place to be. 🤗💝"
-]
+# Real-time metrics dashboard
+st.markdown("## 📊 Real-Time Love Analytics Dashboard")
 
-# Display random quote
-if 'current_quote' not in st.session_state:
-    st.session_state.current_quote = random.choice(quotes)
-
-st.markdown(f'<div class="romantic-quote">"{st.session_state.current_quote}"</div>', unsafe_allow_html=True)
-
-# Interactive buttons
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
-    if st.button("💖 New Quote"):
-        st.session_state.current_quote = random.choice(quotes)
-        st.rerun()
+    st.markdown(f'''
+    <div class="metric-card">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">💫</div>
+        <div class="metric-value">{st.session_state.love_analytics["total_connections"]:,}</div>
+        <div style="font-size: 0.9rem; opacity: 0.8;">Total Connections</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
 with col2:
-    if st.button("🌹 Send Love"):
-        st.session_state.love_count += 1
-        st.balloons()
-        st.success(f"Love sent successfully! 💕 (Total: {st.session_state.love_count})")
+    st.markdown(f'''
+    <div class="metric-card">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔥</div>
+        <div class="metric-value">{st.session_state.love_analytics["active_sessions"]}</div>
+        <div style="font-size: 0.9rem; opacity: 0.8;">Active Sessions</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
 with col3:
-    if st.button("✨ Magic"):
-        st.session_state.magic_count += 1
-        st.snow()
-        st.info(f"Magic is in the air! ✨ (Spells cast: {st.session_state.magic_count})")
+    st.markdown(f'''
+    <div class="metric-card">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">😊</div>
+        <div class="metric-value">{st.session_state.love_analytics["happiness_index"]}%</div>
+        <div style="font-size: 0.9rem; opacity: 0.8;">Happiness Index</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
 with col4:
-    if st.button("💝 Surprise"):
-        surprises = [
-            "You're absolutely amazing! 🌟", 
-            "You light up my world! 💡", 
-            "You're my sunshine! ☀️",
-            "You make my heart skip a beat! 💓",
-            "You're pure magic! ✨",
-            "You're my favorite person! 👑"
-        ]
-        st.success(random.choice(surprises))
-
-# Love statistics with animations
-st.markdown("""
-<div class="love-stats">
-    <h3 style="text-align: center; color: #d63384; font-size: 2em;">💕 Kirti's School Love Stats 💕</h3>
-    <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-        <div class="stat-item">
-            <div style="font-size: 3em;" class="rotating-text">💖</div>
-            <div style="font-weight: 600; font-size: 1.2em;">Hearts Connected</div>
-            <div style="font-size: 2em; color: #ff6b6b; font-weight: bold;">∞</div>
-        </div>
-        <div class="stat-item">
-            <div style="font-size: 3em;" class="pulse-heart">🌹</div>
-            <div style="font-weight: 600; font-size: 1.2em;">Roses Shared</div>
-            <div style="font-size: 2em; color: #ff6b6b; font-weight: bold;">999+</div>
-        </div>
-        <div class="stat-item">
-            <div style="font-size: 3em;" class="sparkle-text">💌</div>
-            <div style="font-weight: 600; font-size: 1.2em;">Love Letters</div>
-            <div style="font-size: 2em; color: #ff6b6b; font-weight: bold;">∞</div>
-        </div>
-        <div class="stat-item">
-            <div style="font-size: 3em;" class="floating-hearts">⭐</div>
-            <div style="font-weight: 600; font-size: 1.2em;">Magic Moments</div>
-            <div style="font-size: 2em; color: #ff6b6b; font-weight: bold;">Every Second</div>
-        </div>
+    st.markdown(f'''
+    <div class="metric-card">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🧠</div>
+        <div class="metric-value">{st.session_state.love_analytics["neural_accuracy"]}%</div>
+        <div style="font-size: 0.9rem; opacity: 0.8;">Neural Accuracy</div>
     </div>
-</div>
-""", unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
-# Love message section
-st.markdown("### 💌 Send a Love Message")
-love_message = st.text_area(
-    "Write your heart out...", 
-    placeholder="Dear love, you mean the world to me... 💕",
-    height=100
-)
+with col5:
+    st.markdown(f'''
+    <div class="metric-card">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚛️</div>
+        <div class="metric-value">{st.session_state.love_analytics["quantum_entanglements"]}</div>
+        <div style="font-size: 0.9rem; opacity: 0.8;">Quantum Links</div>
+    </div>
+    ''', unsafe_allow_html=True)
 
-if st.button("💕 Send Message"):
-    if love_message:
-        st.success(f"Your beautiful message has been sent! 💌")
-        st.markdown(f"**Your Message:** *{love_message}*")
-        st.balloons()
-        # Add some celebration
-        st.markdown("""
-        <div style="text-align: center; font-size: 2em; animation: pulse 1s ease-in-out 3;">
-            💖 Message Delivered with Love! 💖
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.warning("Please write a message first! 💭")
+# Advanced Love Analysis Section
+st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+st.markdown("## 🧬 Advanced Emotion Analysis Engine")
 
-# Add some extra interactive elements
-st.markdown("---")
-st.markdown("### 🎮 Love Games")
-
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([2, 1])
 
 with col1:
-    if st.button("🎲 Love Fortune"):
-        fortunes = [
-            "Love is coming your way soon! 💕",
-            "A romantic surprise awaits you! 🎁",
-            "Your heart will be full of joy today! 😊",
-            "Someone special is thinking of you! 💭",
-            "Love will find you when you least expect it! 💫",
-            "Your kindness will attract love! 🌟"
-        ]
-        st.info(f"🔮 Fortune: {random.choice(fortunes)}")
+    # Generate some sample data for visualization
+    if advanced_viz:
+        # Create a complex emotion heatmap
+        emotions = ['Joy', 'Love', 'Excitement', 'Contentment', 'Passion', 'Serenity', 'Euphoria', 'Bliss']
+        hours = list(range(24))
+        
+        # Generate random data
+        emotion_data = []
+        for emotion in emotions:
+            for hour in hours:
+                intensity = random.randint(30, 100) + random.randint(-20, 20)
+                emotion_data.append({
+                    'Emotion': emotion,
+                    'Hour': hour,
+                    'Intensity': max(0, min(100, intensity))
+                })
+        
+        df_emotions = pd.DataFrame(emotion_data)
+        
+        # Create heatmap
+        fig = px.density_heatmap(
+            df_emotions, 
+            x='Hour', 
+            y='Emotion', 
+            z='Intensity',
+            color_continuous_scale='Viridis',
+            title="24-Hour Emotion Intensity Heatmap"
+        )
+        fig.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font_color='white',
+            title_font_size=16
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
 with col2:
-    if st.button("💕 Love Meter"):
-        love_level = random.randint(85, 100)
-        st.success(f"💖 Love Level: {love_level}% - You're full of love!")
-        # Create a simple progress bar effect
-        progress_bar = "💖" * (love_level // 10)
-        st.markdown(f"**Love Bar:** {progress_bar}")
+    st.markdown("### 🎯 Analysis Parameters")
+    
+    # Quantum processor simulation
+    st.markdown(f'''
+    <div style="padding: 1rem; background: rgba(0,0,0,0.3); border-radius: 10px; margin: 1rem 0;">
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+            <div class="quantum-loader"></div>
+            <span style="margin-left: 1rem;">Quantum Processing...</span>
+        </div>
+        <div>Neural Mode: <strong>{neural_mode}</strong></div>
+        <div>Sensitivity: <strong>{sensitivity}%</strong></div>
+        <div>Real-time: <strong>{"ON" if real_time else "OFF"}</strong></div>
+    </div>
+    ''', unsafe_allow_html=True)
+    
+    if st.button("🚀 Run Deep Analysis"):
+        st.balloons()
+        st.success("Deep analysis complete! Emotional patterns identified.")
 
-# Footer with animated hearts
-st.markdown("""
-<div class="footer-hearts">
-    <span>💖</span>
-    <span>💕</span>
-    <span>💝</span>
-    <span>💗</span>
-    <span>💓</span>
-</div>
-<div style="text-align: center; margin-top: 20px;">
-    <p style="color: #d63384; font-weight: 600; font-size: 1.2em;">Made with 💕 at Kirti's School</p>
-    <p style="color: #666; font-size: 1em;">Where every heart finds its rhythm 💓</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
-# Auto-refresh option
-if st.sidebar.checkbox("🔄 Keep animations alive", value=False):
-    time.sleep(2)
+# Interactive Love Calculator
+st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+st.markdown("## 🧮 Quantum Love Calculator")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    name1 = st.text_input("👤 First Person", placeholder="Enter name...")
+    
+with col2:
+    name2 = st.text_input("💝 Second Person", placeholder="Enter name...")
+    
+with col3:
+    if st.button("⚡ Calculate Quantum Compatibility"):
+        if name1 and name2:
+            # Sophisticated calculation simulation
+            hash1 = int(hashlib.md5(name1.encode()).hexdigest()[:8], 16)
+            hash2 = int(hashlib.md5(name2.encode()).hexdigest()[:8], 16)
+            compatibility = ((hash1 + hash2) % 100) + random.randint(-10, 15)
+            compatibility = max(60, min(100, compatibility))  # Keep it positive
+            
+            st.success(f"🎯 Quantum Compatibility: {compatibility}%")
+            
+            # Add some fun analysis
+            if compatibility > 90:
+                st.info("💫 Cosmic Connection Detected!")
+            elif compatibility > 80:
+                st.info("🌟 Strong Harmonic Resonance!")
+            else:
+                st.info("💖 Beautiful Potential Discovered!")
+                
+            # Store the data
+            st.session_state.user_data.append({
+                'timestamp': datetime.now(),
+                'names': f"{name1} & {name2}",
+                'compatibility': compatibility
+            })
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Advanced Features Section
+st.markdown('<div class="glass-container">', unsafe_allow_html=True)
+st.markdown("## 🎪 Advanced Features Laboratory")
+
+tab1, tab2, tab3, tab4 = st.tabs(["🔬 Neural Analysis", "📡 Quantum Insights", "🎨 Love Visualization", "📊 Data Export"])
+
+with tab1:
+    st.markdown("### 🧠 Neural Network Love Prediction")
+    
+    # Simulate neural network processing
+    if st.button("🔮 Generate Love Prediction"):
+        prediction_types = [
+            "Romantic encounter probability: HIGH",
+            "Emotional growth potential: EXCELLENT", 
+            "Relationship stability forecast: STRONG",
+            "Love frequency resonance: OPTIMAL",
+            "Quantum entanglement possibility: DETECTED"
+        ]
+        
+        with st.spinner("Processing neural patterns..."):
+            time.sleep(2)
+            prediction = random.choice(prediction_types)
+            confidence = random.randint(85, 98)
+            
+        st.success(f"🎯 Prediction: {prediction}")
+        st.info(f"🔬 Neural Confidence: {confidence}%")
+
+with tab2:
+    st.markdown("### ⚛️ Quantum Love Insights")
+    
+    # Generate quantum insights
+    insights = [
+        "Your love energy is vibrating at 528 Hz - the frequency of transformation",
+        "Quantum entanglement detected with 3 potential romantic connections",
+        "Your emotional quantum state shows high coherence patterns",
+        "Parallel universe analysis suggests 87% love success probability",
+        "Quantum superposition indicates multiple love possibilities exist"
+    ]
+    
+    if st.button("🌌 Access Quantum Insights"):
+        insight = random.choice(insights)
+        st.markdown(f"**💫 Quantum Insight:** {insight}")
+
+with tab3:
+    st.markdown("### 🎨 Love Energy Visualization")
+    
+    # Create a love energy chart
+    if st.button("📊 Generate Love Energy Chart"):
+        # Generate sample data
+        dates = pd.date_range(start='2024-01-01', end='2024-12-31', freq='D')
+        love_energy = [50 + 30 * np.sin(i/50) + random.randint(-10, 10) for i in range(len(dates))]
+        
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=dates,
+            y=love_energy,
+            mode='lines',
+            fill='tonexty',
+            name='Love Energy',
+            line=dict(color='rgba(255, 105, 180, 0.8)', width=3)
+        ))
+        
+        fig.update_layout(
+            title="Your Love Energy Throughout the Year",
+            xaxis_title="Date",
+            yaxis_title="Love Energy Level",
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            font_color='white'
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+with tab4:
+    st.markdown("### 📊 Data Export & Analytics")
+    
+    if st.session_state.user_data:
+        df = pd.DataFrame(st.session_state.user_data)
+        st.dataframe(df, use_container_width=True)
+        
+        # Export functionality
+        csv = df.to_csv(index=False)
+        st.download_button(
+            "📥 Download Love Analytics Data",
+            csv,
+            "love_analytics.csv",
+            "text/csv"
+        )
+    else:
+        st.info("No data available yet. Use the Quantum Love Calculator to generate data!")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Footer with professional styling
+st.markdown('''
+<div style="text-align: center; margin-top: 3rem; padding: 2rem; background: rgba(0,0,0,0.2); border-radius: 20px;">
+    <h3 style="margin-bottom: 1rem;">🚀 Kirti's Advanced Love Analytics Platform</h3>
+    <p style="opacity: 0.8; margin-bottom: 1rem;">Powered by Quantum Emotion Processing & Neural Love Networks</p>
+    <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+        <span>🧬 Neural Networks: ACTIVE</span>
+        <span>⚛️ Quantum Core: ONLINE</span>
+        <span>📡 Real-time Processing: ENABLED</span>
+        <span>🔒 Encrypted: AES-256</span>
+    </div>
+    <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">
+        Version 2.1.0 | Built with ❤️ and Advanced AI
+    </p>
+</div>
+''', unsafe_allow_html=True)
+
+# Auto-refresh for real-time effect
+if real_time and st.sidebar.checkbox("🔄 Auto-refresh Dashboard", value=False):
+    time.sleep(3)
+    # Update some metrics
+    st.session_state.love_analytics['active_sessions'] = random.randint(500, 2000)
+    st.session_state.love_analytics['happiness_index'] = random.randint(85, 99)
     st.rerun()
