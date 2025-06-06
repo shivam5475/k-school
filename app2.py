@@ -267,28 +267,20 @@ st.markdown("""
         border: 1px solid rgba(255,255,255,0.1);
     }
     
-    .neural-network {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: -1;
-    }
-    
-    .neural-node {
-        position: absolute;
-        width: 4px;
-        height: 4px;
-        background: rgba(255,255,255,0.6);
+    .quantum-loader {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255,255,255,0.1);
+        border-top: 3px solid #ffffff;
         border-radius: 50%;
-        animation: neuralPulse 3s ease-in-out infinite;
+        animation: quantumSpin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
     }
     
-    @keyframes neuralPulse {
-        0%, 100% { opacity: 0.3; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.5); }
+    @keyframes quantumSpin {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.2); }
+        100% { transform: rotate(360deg) scale(1); }
     }
     
     .status-indicator {
@@ -307,52 +299,6 @@ st.markdown("""
     @keyframes statusBlink {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.3; }
-    }
-    
-    .matrix-rain {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: -2;
-        overflow: hidden;
-    }
-    
-    .matrix-column {
-        position: absolute;
-        top: -100%;
-        color: rgba(0,255,0,0.5);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 14px;
-        animation: matrixFall linear infinite;
-    }
-    
-    @keyframes matrixFall {
-        0% { top: -100%; opacity: 1; }
-        100% { top: 100%; opacity: 0; }
-    }
-    
-    .quantum-loader {
-        display: inline-block;
-        width: 40px;
-        height: 40px;
-        border: 3px solid rgba(255,255,255,0.1);
-        border-top: 3px solid #ffffff;
-        border-radius: 50%;
-        animation: quantumSpin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-    }
-    
-    @keyframes quantumSpin {
-        0% { transform: rotate(0deg) scale(1); }
-        50% { transform: rotate(180deg) scale(1.2); }
-        100% { transform: rotate(360deg) scale(1); }
-    }
-    
-    .sidebar .sidebar-content {
-        background: rgba(0,0,0,0.3) !important;
-        backdrop-filter: blur(20px) !important;
     }
     
     .stButton > button {
@@ -397,16 +343,20 @@ st.markdown("""
 st.markdown('<div class="cyber-grid"></div>', unsafe_allow_html=True)
 
 # Initialize advanced session state
-if 'system_status' not in st.session_state:
-    st.session_state.system_status = 'online'
-if 'love_analytics' not in st.session_state:
-    st.session_state.love_analytics = {
+@st.cache_data
+def initialize_analytics():
+    return {
         'total_connections': random.randint(10000, 99999),
         'active_sessions': random.randint(500, 2000),
         'happiness_index': random.randint(85, 99),
         'neural_accuracy': random.randint(94, 99),
         'quantum_entanglements': random.randint(1000, 5000)
     }
+
+if 'system_status' not in st.session_state:
+    st.session_state.system_status = 'online'
+if 'love_analytics' not in st.session_state:
+    st.session_state.love_analytics = initialize_analytics()
 if 'user_data' not in st.session_state:
     st.session_state.user_data = []
 
@@ -615,7 +565,7 @@ with col3:
                 
             # Store the data
             st.session_state.user_data.append({
-                'timestamp': datetime.now(),
+                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 'names': f"{name1} & {name2}",
                 'compatibility': compatibility
             })
@@ -678,10 +628,11 @@ with tab3:
         fig.add_trace(go.Scatter(
             x=dates,
             y=love_energy,
-            mode='lines',
+            mode='lines+markers',
             fill='tonexty',
             name='Love Energy',
-            line=dict(color='rgba(255, 105, 180, 0.8)', width=3)
+            line=dict(color='rgba(255, 105, 180, 0.8)', width=3),
+            marker=dict(size=4, color='rgba(255, 105, 180, 1)')
         ))
         
         fig.update_layout(
@@ -690,7 +641,8 @@ with tab3:
             yaxis_title="Love Energy Level",
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            font_color='white'
+            font_color='white',
+            showlegend=False
         )
         
         st.plotly_chart(fig, use_container_width=True)
@@ -708,7 +660,8 @@ with tab4:
             "📥 Download Love Analytics Data",
             csv,
             "love_analytics.csv",
-            "text/csv"
+            "text/csv",
+            key="download_csv"
         )
     else:
         st.info("No data available yet. Use the Quantum Love Calculator to generate data!")
@@ -732,9 +685,8 @@ st.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
-# Auto-refresh for real-time effect
-if real_time and st.sidebar.checkbox("🔄 Auto-refresh Dashboard", value=False):
-    time.sleep(3)
+# Auto-refresh functionality (removed automatic rerun to prevent infinite loops)
+if real_time and st.sidebar.button("🔄 Manual Refresh"):
     # Update some metrics
     st.session_state.love_analytics['active_sessions'] = random.randint(500, 2000)
     st.session_state.love_analytics['happiness_index'] = random.randint(85, 99)
